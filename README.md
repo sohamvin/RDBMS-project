@@ -17,7 +17,7 @@ To set up and start the project, follow these steps:
     ```
 
 2. **Install Dependencies**
-    Ensure you have ![Node.js](https://nodejs.org/en/download/package-manager) installed. Install the required packages using npm:
+    Ensure you have [Node.js](https://nodejs.org/en/download/package-manager) installed. Install the required packages using npm:
 
     ```bash
     npm install
