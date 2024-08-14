@@ -61,5 +61,6 @@ The application uses JWT for authentication. Middleware is applied to protect ro
 
 **Database Schema**
 The project uses the following database schema:
+![dbdiagrma](https://github.com/user-attachments/assets/8bfeaaff-a7bb-4975-82a5-7f305d82c9b8)
 
 
