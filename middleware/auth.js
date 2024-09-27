@@ -1,5 +1,6 @@
 // middleware/auth.js
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const verifyToken = (req, res, next) => {
     const token = req.headers['authorization'];
@@ -18,6 +19,8 @@ const verifyToken = (req, res, next) => {
         req.userId = decoded.id;
         next();
     });
+
+    return;
 };
 
 module.exports = verifyToken;
