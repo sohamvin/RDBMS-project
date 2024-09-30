@@ -1,26 +1,30 @@
-// middleware/auth.js
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) {
-        return res.status(403).json({ error: 'No token provided' });
+    // Get token from the Authorization header
+    const authHeader = req.headers['authorization'];
+    
+    // Check if the token is provided and starts with 'Bearer'
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(403).json({ error: 'No token provided or invalid token format' });
     }
 
-    // Remove 'Bearer ' from the token string if present
-    const bearerToken = token.startsWith('Bearer ') ? token.slice(7, token.length) : token;
+    // Extract the token by removing the 'Bearer ' prefix
+    const token = authHeader.split(' ')[1];
 
-    jwt.verify(bearerToken, process.env.JWT_SECRET, (err, decoded) => {
+    // Verify the token using the secret key
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return res.status(401).json({ error: 'Failed to authenticate token' });
         }
-        // Save the decoded token to the request for use in other routes
-        req.userId = decoded.id;
+        
+        // Save the decoded user ID to the request for use in other routes
+        req.user = { userId: decoded.id };  // Adjust 'decoded' fields based on your token payload structure
+
+        // Proceed to the next middleware or route handler
         next();
     });
-
-    return;
 };
 
 module.exports = verifyToken;
