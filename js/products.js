@@ -15,10 +15,9 @@ async function apiRequest(path, method = "GET", body = null, token = null) {
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("token");
-    // Uncomment this if token-based redirection is required
-    // if (!token) {
-    //     window.location.href = "/login.html"; // Redirect if not logged in
-    // }
+    if (!token) {
+        window.location.href = "/login.html"; // Redirect if not logged in
+    }
 
     // Fetch products
     const products = await apiRequest("/products", "GET", null, token);
@@ -41,8 +40,42 @@ document.addEventListener("DOMContentLoaded", async () => {
             <p><strong>Price:</strong> $${product.askprice}</p>
             <p><strong>Available From:</strong> ${availableFrom}</p>
             <p><strong>Available Till:</strong> ${availableTill}</p>
+            <label for="hours-${product.id}">Number of Hours:</label>
+            <input type="number" id="hours-${product.id}" class="hours-input" min="1" value="1">
+            <button class="book-btn" data-product-id="${product.id}">Book Product</button>
         `;
 
         productDiv.appendChild(productEl);
+    });
+
+    // Add event listener to all "Book Product" buttons
+    document.querySelectorAll(".book-btn").forEach(button => {
+        button.addEventListener("click", async (e) => {
+            const productId = e.target.getAttribute("data-product-id");
+            const hoursInput = document.getElementById(`hours-${productId}`);
+            const numberOfHours = parseInt(hoursInput.value, 10);
+
+            if (isNaN(numberOfHours) || numberOfHours <= 0) {
+                alert("Please enter a valid number of hours.");
+                return;
+            }
+
+            const bookingData = {
+                productId: productId,
+                numberOfHours: numberOfHours,
+                status: "Pending",
+                bookerSign: false,
+                lenderSign: false,
+                whenDate: new Date().toISOString()
+            };
+
+            const response = await apiRequest("/bookings", "POST", bookingData, token);
+
+            if (response.id) {
+                alert("Booking successful!");
+            } else {
+                alert(response.error || "Booking failed.");
+            }
+        });
     });
 });
