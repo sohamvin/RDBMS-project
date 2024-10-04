@@ -13,6 +13,7 @@ const {
     getMyProductsBookedByOthers,
     updateBookingStatus,
     deleteBooking,
+    getUser,
 } = require('./controller');
 const verifyToken = require('./middleware/auth');
 
@@ -24,6 +25,8 @@ router.post('/login', loginUser); // No token required
 router.get('/products', getProducts);
 // Apply verifyToken middleware to all routes below this line
 router.use(verifyToken);
+
+router.get('/getUser', getUser);
 
 router.post('/products', createProduct);
 router.get('/booked_of_me', getMyProductsBookedByOthers);

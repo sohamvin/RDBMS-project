@@ -6,6 +6,7 @@ const queries = require('./queries.js');
 require('dotenv').config();
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
+const { log } = require('console');
 
 
 // Configuration
@@ -18,7 +19,23 @@ cloudinary.config({
 
 const getUser = async (req, res) => {
     try {
-        const uId = req.query.id; // Get user id from the query string
+        const self = req.query.self;
+
+        let uId = null;
+
+        console.log(self);
+        console.log(self == true, self == "true" , self == `true`);
+        
+        console.log(req.user.userId);
+        
+
+        if(self == "true"){
+            uId = req.user.userId;
+
+        } else {
+            uId = req.query.id
+
+        }// Get user id from the query string
         
         if (!uId) {
             return res.status(400).json({ error: 'Bad request, no userId provided' });
@@ -308,4 +325,5 @@ module.exports = {
     getMyProductsBookedByOthers,
     updateBookingStatus,
     deleteBooking,
+    getUser,
 };
