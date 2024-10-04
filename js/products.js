@@ -17,6 +17,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("token");
     if (!token) {
         window.location.href = "/login.html"; // Redirect if not logged in
+        return;
+    }
+
+    // Fetch user details
+    const user = await apiRequest("/getUser?self=true", "GET", null, token);
+    console.log(user);
+    
+    const userDetailsDiv = document.getElementById("userDetails");
+
+    if (user && user.username) {
+        userDetailsDiv.innerHTML = `
+            <img src="${user.imageProfile || 'default-profile.png'}" alt="Profile Image" class="profile-image">
+            <span>${user.firstName} ${user.lastName} (${user.username})</span>
+        `;
     }
 
     // Fetch products

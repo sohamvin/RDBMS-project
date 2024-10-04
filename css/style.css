@@ -24,7 +24,57 @@ div {
     margin-bottom: 20px;
 }
 
+/* 
+nav {
+    background-color: #333;
+    padding: 10px;
+}
 
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+nav ul li {
+    float: left;
+}
+
+nav ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    background-color: #111;
+}
+ */
+
+ /* User details section in the navbar */
+.user-details {
+    float: right;
+    display: flex;
+    align-items: center;
+}
+
+.user-details img.profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.user-details span {
+    color: white;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+/* Navbar styling */
 nav {
     background-color: #333;
     padding: 10px;
