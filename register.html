@@ -8,17 +8,25 @@
 </head>
 <body>
     <h1>Register</h1>
-    <form id="registerForm">
+    <form id="registerForm" enctype="multipart/form-data">
         <label for="username">Username:</label>
         <input type="text" id="regUsername" required>
+        
         <label for="password">Password:</label>
         <input type="password" id="regPassword" required>
+        
         <label for="firstName">First Name:</label>
         <input type="text" id="firstName" required>
+        
         <label for="lastName">Last Name:</label>
         <input type="text" id="lastName" required>
+        
         <label for="pincode">Pincode:</label>
         <input type="text" id="pincode" required>
+        
+        <label for="image">Upload Profile Image:</label>
+        <input type="file" id="image" accept="image/*">
+        
         <button type="submit">Register</button>
     </form>
 

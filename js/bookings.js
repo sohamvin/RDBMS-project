@@ -18,11 +18,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!token) {
         window.location.href = "/login.html"; // Redirect if not logged in
     }
+    // [
+    //     {
+    //       "id": "4c3e004d-7770-45fb-9c61-9eaf00db2f2b",
+    //       "availablefrom": "2024-09-30T03:30:00.000Z",
+    //       "availabletill": "2024-10-05T12:30:00.000Z",
+    //       "askprice": 1500,
+    //       "producttype": "Electronics",
+    //       "numberofhours": 1,
+    //       "whendate": "2024-10-02T20:52:57.487Z",
+    //       "imagelink": "https://example.com/image.jpg",
+    //       "pincode": "123456",
+    //       "fromuserid": "8ac643e6-2ecb-420f-9ac5-f3277e4a2ad4"
+    //     }
+    //   ]
 
     // Fetch products
-    const products = await apiRequest("/products", "GET", null, token);
+    const products = await apiRequest("/mybookings", "GET", null, token);
 
-    const productDiv = document.getElementById("products");
+    const productDiv = document.getElementById("bookings");
 
     products.forEach(product => {
         // Format the dates
