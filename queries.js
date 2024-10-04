@@ -2,10 +2,18 @@
 
 // User-related queries
 const CHECK_IF_USER_EXISTS = 'SELECT * FROM UserProfile WHERE username = $1';
+
 const INSERT_NEW_USER = `
-    INSERT INTO UserProfile (username, pincode, firstName, lastName, password) 
-    VALUES ($1, $2, $3, $4, $5) 
+    INSERT INTO UserProfile (username, pincode, firstName, lastName, password, imageprofile) 
+    VALUES ($1, $2, $3, $4, $5, $6) 
     RETURNING *`;
+
+const GET_USER = `
+    SELECT username, pincode, firstname, lastname, imageprofile 
+    FROM UserProfile 
+    WHERE id = $1
+`;
+
 
 // Product-related queries
 const GET_ALL_PRODUCTS = 'SELECT * FROM Product';
@@ -22,8 +30,9 @@ const INSERT_NEW_BOOKING = `
     RETURNING *`;
 
 const GET_BOOKINGS_BY_USER = `
-    SELECT * FROM Booking 
-    WHERE askerId = $1
+    SELECT p.id, p.availablefrom, p.availabletill, p.askprice, p.producttype, b.numberofhours, b.whendate, p.imagelink, p.pincode, p.fromuserid FROM Product p
+    JOIN Booking b ON p.id = b.productid 
+    WHERE b.askerId = $1
 `;
 
 const GET_PRODUCT_OWNER = `
@@ -78,5 +87,6 @@ module.exports = {
     UPDATE_BOOKING_STATUS,
     GET_PERTICULAR_BOOKING,
     DELETE_BOOKING_BY_USER,
+    GET_USER,
 
 };

@@ -5,7 +5,8 @@ CREATE TABLE UserProfile (
     pincode VARCHAR(255) NOT NULL,
     firstName VARCHAR(255) NOT NULL,
     lastName VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+    imageprofile VARCHAR(300) DEFAULT NULL,
 );
 
 CREATE TABLE Product (

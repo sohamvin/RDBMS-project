@@ -1,22 +1,68 @@
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
 const bcrypt = require('bcrypt');
+const db = require('./db.js'); // Assuming db is your database handler
+const queries = require('./queries.js');
+require('dotenv').config();
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const db = require('./db');
-const queries = require('./queries');
+
+
+// Configuration
+cloudinary.config({ 
+  cloud_name: process.env.COULD_NAME, 
+  api_key: process.env.CLOUDINARY,
+  api_secret: process.env.CLUDINARY_SECRETE, 
+});
+
+
+const getUser = async (req, res) => {
+    try {
+        const uId = req.query.id; // Get user id from the query string
+        
+        if (!uId) {
+            return res.status(400).json({ error: 'Bad request, no userId provided' });
+        }
+
+        // Query to get user details from the database
+        const userResult = await db.query(queries.GET_USER, [uId]);
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'No such user' });
+        }
+
+        // Return the user data as JSON
+        const user = userResult.rows[0];
+        return res.status(200).json({
+            username: user.username,
+            pincode: user.pincode,
+            firstName: user.firstname,
+            lastName: user.lastname,
+            imageProfile: user.imageprofile
+        });
+
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+
 
 // User controller functions
 const registerUser = async (req, res) => {
     try {
         const { username, pincode, firstName, lastName, password } = req.body;
+        const image = req.file; // Multer attaches the file in req.file if there's a file upload
 
         console.log(req.body);
-        
+        console.log(req.file); // Log the uploaded image file
 
         // Check if the user already exists
         const userResult = await db.query(queries.CHECK_IF_USER_EXISTS, [username]);
 
         console.log(userResult);
         
-
         if (userResult.rows.length > 0) {
             return res.status(400).json({ error: 'User already exists' });
         }
@@ -24,17 +70,40 @@ const registerUser = async (req, res) => {
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create the user
+        let imageProfileUrl = null;
+
+        // Check if an image was uploaded, if so, upload to Cloudinary
+        if (image) {
+            const result = await cloudinary.uploader.upload(image.path, {
+                folder: 'user_profiles',
+                use_filename: true,
+                unique_filename: false,
+            });
+
+            // Get the signed URL
+            imageProfileUrl = cloudinary.url(result.public_id, {
+                sign_url: true,
+                secure: true,
+                transformation: [
+                    { width: 500, height: 500, crop: 'limit' }, // Optional resize
+                ],
+            });
+
+            // Optionally delete the local file after uploading
+            fs.unlinkSync(image.path);
+        }
+
+        // Create the user with the image URL if present
         const newUser = await db.query(
             queries.INSERT_NEW_USER,
-            [username, pincode, firstName, lastName, hashedPassword]
+            [username, pincode, firstName, lastName, hashedPassword, imageProfileUrl]
         );
 
         console.log(newUser);
-        
 
         res.status(201).json(newUser.rows[0]);
     } catch (error) {
+        console.error('Error registering user:', error);
         res.status(500).json({ error: error.message });
     }
 };

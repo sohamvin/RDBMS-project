@@ -1,5 +1,8 @@
 // routes.js
 const express = require('express');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
 const {
     registerUser,
     loginUser,
@@ -16,7 +19,7 @@ const verifyToken = require('./middleware/auth');
 const router = express.Router();
 
 // User routes
-router.post('/register', registerUser); // No token required
+router.post('/register', upload.single('image'), registerUser); // No token required
 router.post('/login', loginUser); // No token required
 router.get('/products', getProducts);
 // Apply verifyToken middleware to all routes below this line
