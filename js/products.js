@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch user details
     const user = await apiRequest("/getUser?self=true", "GET", null, token);
     console.log(user);
-    
+
     const userDetailsDiv = document.getElementById("userDetails");
 
     if (user && user.username) {
@@ -40,8 +40,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     products.forEach(product => {
         // Format the dates
-        const availableFrom = new Date(product.availablefrom).toLocaleDateString();
-        const availableTill = new Date(product.availabletill).toLocaleDateString();
+        const availableFrom = new Date(product.availablefrom);
+        const availableTill = new Date(product.availabletill);
 
         // Create a new product element
         const productEl = document.createElement("div");
@@ -52,12 +52,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             <h2>${product.producttype}</h2>
             <h3>${product.description}</h3>
             <p><strong>Price:</strong> $${product.askprice}</p>
-            <p><strong>Available From:</strong> ${availableFrom}</p>
-            <p><strong>Available Till:</strong> ${availableTill}</p>
+            <p><strong>Available From:</strong> ${availableFrom.toLocaleDateString()}</p>
+            <p><strong>Available Till:</strong> ${availableTill.toLocaleDateString()}</p>
+            <label for="whenDate-${product.id}">When would you like to book?</label>
+            <input type="date" id="whenDate-${product.id}" class="when-date" min="${availableFrom.toISOString().split('T')[0]}" max="${availableTill.toISOString().split('T')[0]}" required>
             <label for="hours-${product.id}">Number of Hours:</label>
             <input type="number" id="hours-${product.id}" class="hours-input" min="1" value="1">
             <button class="book-btn" data-product-id="${product.id}">Book Product</button>
-            <image src = "${product.imagelink}" > </imgage>
+            <img src="${product.imagelink}" alt="Product Image">
         `;
 
         productDiv.appendChild(productEl);
@@ -68,7 +70,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         button.addEventListener("click", async (e) => {
             const productId = e.target.getAttribute("data-product-id");
             const hoursInput = document.getElementById(`hours-${productId}`);
+            const whenDateInput = document.getElementById(`whenDate-${productId}`);
             const numberOfHours = parseInt(hoursInput.value, 10);
+            const whenDate = new Date(whenDateInput.value);
+
+            if (!whenDate) {
+                alert("Please select a valid date for booking.");
+                return;
+            }
+
+            // Fetch the product's availableFrom and availableTill dates for validation
+            const product = products.find(p => p.id === productId);
+            const availableFrom = new Date(product.availablefrom);
+            const availableTill = new Date(product.availabletill);
+
+            // Validate if the selected whenDate is within the valid range
+            if (whenDate < availableFrom || whenDate > availableTill) {
+                alert(`Please select a date between ${availableFrom.toLocaleDateString()} and ${availableTill.toLocaleDateString()}.`);
+                return;
+            }
 
             if (isNaN(numberOfHours) || numberOfHours <= 0) {
                 alert("Please enter a valid number of hours.");
@@ -81,7 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 status: "Pending",
                 bookerSign: false,
                 lenderSign: false,
-                whenDate: new Date().toISOString()
+                whenDate: whenDate.toISOString() // Send the selected whenDate in ISO format
             };
 
             const response = await apiRequest("/bookings", "POST", bookingData, token);
