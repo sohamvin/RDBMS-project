@@ -2,10 +2,11 @@
 
 // User-related queries
 const CHECK_IF_USER_EXISTS = 'SELECT * FROM UserProfile WHERE username = $1';
+const CHECK_IF_PHONENUMBER_EXISTS = 'SELECT * FROM UserProfile WHERE phonenumber = $1';
 
 const INSERT_NEW_USER = `
-    INSERT INTO UserProfile (username, pincode, firstName, lastName, password, imageprofile) 
-    VALUES ($1, $2, $3, $4, $5, $6) 
+    INSERT INTO UserProfile (username, pincode, firstName, lastName, password, imageprofile, phonenumber) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7) 
     RETURNING *`;
 
 const GET_USER = `
@@ -49,7 +50,7 @@ const GET_PRODUCTS_BOOKED_BY_ME = `
 
 // Query to get the user's products that have been booked by others (fromUserId)
 const GET_MY_PRODUCTS_BOOKED_BY_OTHERS = `
-    SELECT B.* FROM Booking B
+    SELECT B.id AS bid, B.lendersign, B.bookersign, B.status, B.numberofhours, B.whendate, B.bookingdate, P.* FROM Booking B
     JOIN Product P ON B.productId = P.id
     WHERE P.fromUserId = $1
 `;
@@ -88,5 +89,6 @@ module.exports = {
     GET_PERTICULAR_BOOKING,
     DELETE_BOOKING_BY_USER,
     GET_USER,
+    CHECK_IF_PHONENUMBER_EXISTS,
 
 };

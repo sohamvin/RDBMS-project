@@ -28,7 +28,7 @@ router.use(verifyToken);
 
 router.get('/getUser', getUser);
 
-router.post('/products', createProduct);
+router.post('/products', upload.single('image'), createProduct);
 router.get('/booked_of_me', getMyProductsBookedByOthers);
 router.post('/bookings', createBooking);
 router.get("/mybookings", getBookingsByUser);

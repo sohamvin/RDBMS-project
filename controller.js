@@ -69,7 +69,7 @@ const getUser = async (req, res) => {
 // User controller functions
 const registerUser = async (req, res) => {
     try {
-        const { username, pincode, firstName, lastName, password } = req.body;
+        const { username, pincode, firstName, lastName, password, phoneNumber } = req.body;
         const image = req.file; // Multer attaches the file in req.file if there's a file upload
 
         console.log(req.body);
@@ -82,6 +82,12 @@ const registerUser = async (req, res) => {
         
         if (userResult.rows.length > 0) {
             return res.status(400).json({ error: 'User already exists' });
+        }
+
+        const getPhone  = await db.query(queries.CHECK_IF_PHONENUMBER_EXISTS, [phoneNumber]);
+
+        if (getPhone.rows.length > 0) {
+            return res.status(400).json({ error: 'Phone Number already registered' });
         }
 
         // Hash the password
@@ -113,7 +119,7 @@ const registerUser = async (req, res) => {
         // Create the user with the image URL if present
         const newUser = await db.query(
             queries.INSERT_NEW_USER,
-            [username, pincode, firstName, lastName, hashedPassword, imageProfileUrl]
+            [username, pincode, firstName, lastName, hashedPassword, imageProfileUrl, phoneNumber]
         );
 
         console.log(newUser);
@@ -169,11 +175,38 @@ const getProducts = async (req, res) => {
 
 const createProduct = async (req, res) => {
     try {
+        const image = req.file; // Multer attaches the file to req.file if uploaded
+
+        console.log(req.body);
+        console.log(req.file); // Log the uploaded image file
+
+        let imageProfileUrl = null;
+
+        // Check if an image was uploaded, if so, upload to Cloudinary
+        if (image) {
+            const result = await cloudinary.uploader.upload(image.path, {
+                folder: 'user_profiles',
+                use_filename: true,
+                unique_filename: false,
+            });
+
+            // Get the signed URL
+            imageProfileUrl = cloudinary.url(result.public_id, {
+                sign_url: true,
+                secure: true,
+                transformation: [
+                    { width: 500, height: 500, crop: 'limit' }, // Optional resize
+                ],
+            });
+
+            // Optionally delete the local file after uploading
+            fs.unlinkSync(image.path); // Ensure 'fs' is imported for file deletion
+        }
+
         const {
             availableFrom,
             availableTill,
             askPrice,
-            imageLink,
             description,
             pincode,
             productType,
@@ -181,9 +214,22 @@ const createProduct = async (req, res) => {
             taluka,
         } = req.body;
 
+        const imageLink = imageProfileUrl || req.body.imageLink; // Assign uploaded image link or default from request
+
         const newProduct = await db.query(
             queries.INSERT_NEW_PRODUCT,
-            [req.user.userId, availableFrom, availableTill, askPrice, imageLink, description, pincode, productType, companyName, taluka]
+            [
+                req.user.userId,
+                availableFrom,
+                availableTill,
+                askPrice,
+                imageLink, // Make sure to use the correct image URL
+                description,
+                pincode,
+                productType,
+                companyName,
+                taluka,
+            ]
         );
 
         res.json(newProduct.rows[0]);
@@ -191,6 +237,7 @@ const createProduct = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 
 const getMyProductsBookedByOthers = async (req, res) => {
@@ -201,7 +248,7 @@ const getMyProductsBookedByOthers = async (req, res) => {
 
         const myProductsBookedByOthers = await db.query(queries.GET_MY_PRODUCTS_BOOKED_BY_OTHERS, [userId]);
 
-        console.log(myProductsBookedByOthers.rows);
+        console.log("YOOOOOOOO " , myProductsBookedByOthers.rows);
         
 
         res.json({
@@ -212,38 +259,80 @@ const getMyProductsBookedByOthers = async (req, res) => {
     }
 };
 
+
 const updateBookingStatus = async (req, res) => {
     try {
-        const { bookingId } = req.query; // Booking ID comes from the URL
+        const { bookingId } = req.query; // Booking ID comes from the URL query parameters
         const { status } = req.body; // The new status is sent in the request body
         const userId = req.user.userId; // Assuming req.user contains authenticated user's info
 
-        // Step 1: Validate if the booking exists and the product belongs to the current user
-        const productOwner = await db.query(
-            queries.GET_PERTICULAR_BOOKING
-            , [bookingId]);
+        console.log(bookingId, status);
+        
+
+        // Validate if the booking exists and the product belongs to the current user
+        const productOwner = await db.query(queries.GET_PERTICULAR_BOOKING, [bookingId]);
 
         if (productOwner.rows.length === 0) {
             return res.status(404).json({ error: 'Booking not found' });
         }
 
-        // Step 2: Check if the current user is the owner of the product
+        console.log(productOwner);
+        
+
+        // Check if the current user is the owner of the product
         if (productOwner.rows[0].fromuserid !== userId) {
             return res.status(403).json({ error: 'You are not authorized to update this booking' });
         }
 
-        // Step 3: Update the booking status
+        // Update the booking status
         const updatedBooking = await db.query(queries.UPDATE_BOOKING_STATUS, [status, bookingId]);
 
         if (updatedBooking.rows.length === 0) {
             return res.status(404).json({ error: 'Booking not found or status unchanged' });
         }
 
+        console.log(updatedBooking);
+        
+
         res.json(updatedBooking.rows[0]); // Return the updated booking
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
+
+// const updateBookingStatus = async (req, res) => {
+//     try {
+//         const { bookingId } = req.query; // Booking ID comes from the URL
+//         const { status } = req.body; // The new status is sent in the request body
+//         const userId = req.user.userId; // Assuming req.user contains authenticated user's info
+
+//         // Step 1: Validate if the booking exists and the product belongs to the current user
+//         const productOwner = await db.query(
+//             queries.GET_PERTICULAR_BOOKING
+//             , [bookingId]);
+
+//         if (productOwner.rows.length === 0) {
+//             return res.status(404).json({ error: 'Booking not found' });
+//         }
+
+//         // Step 2: Check if the current user is the owner of the product
+//         if (productOwner.rows[0].fromuserid !== userId) {
+//             return res.status(403).json({ error: 'You are not authorized to update this booking' });
+//         }
+
+//         // Step 3: Update the booking status
+//         const updatedBooking = await db.query(queries.UPDATE_BOOKING_STATUS, [status, bookingId]);
+
+//         if (updatedBooking.rows.length === 0) {
+//             return res.status(404).json({ error: 'Booking not found or status unchanged' });
+//         }
+
+//         res.json(updatedBooking.rows[0]); // Return the updated booking
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
 
 
 
