@@ -8,25 +8,34 @@
 </head>
 <body>
     <h1>Create Product</h1>
-    <form id="productForm">
+    <form id="productForm" enctype="multipart/form-data">
         <label for="availableFrom">Available From:</label>
         <input type="datetime-local" id="availableFrom" required>
+        
         <label for="availableTill">Available Till:</label>
         <input type="datetime-local" id="availableTill" required>
+        
         <label for="askPrice">Ask Price:</label>
         <input type="number" id="askPrice" required>
-        <label for="imageLink">Image Link:</label>
-        <input type="url" id="imageLink" required>
+        
+        <label for="imageFile">Upload Image:</label>
+        <input type="file" id="imageFile" accept="image/*" required>
+        
         <label for="description">Description:</label>
         <textarea id="description" required></textarea>
+        
         <label for="pincode">Pincode:</label>
         <input type="text" id="pincode" required>
+        
         <label for="productType">Product Type:</label>
         <input type="text" id="productType" required>
+        
         <label for="companyName">Company Name:</label>
         <input type="text" id="companyName" required>
+        
         <label for="taluka">Taluka:</label>
         <input type="text" id="taluka" required>
+        
         <button type="submit">Create Product</button>
     </form>
 

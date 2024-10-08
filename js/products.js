@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <label for="hours-${product.id}">Number of Hours:</label>
             <input type="number" id="hours-${product.id}" class="hours-input" min="1" value="1">
             <button class="book-btn" data-product-id="${product.id}">Book Product</button>
+            <image src = "${product.imagelink}" > </imgage>
         `;
 
         productDiv.appendChild(productEl);
