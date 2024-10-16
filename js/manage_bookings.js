@@ -42,6 +42,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const bookings = await apiRequest("/booked_of_me", "GET", null, token);
     const manageBookingsDiv = document.getElementById("manageBookings");
 
+    console.log(bookings);
+    
+
     bookings.myProductsBookedByOthers.forEach(booking => {
         const bookingEl = document.createElement("div");
         bookingEl.classList.add("booking-item");

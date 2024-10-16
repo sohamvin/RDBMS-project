@@ -38,15 +38,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const productDiv = document.getElementById("bookings");
 
+    console.log(products);
+    
+
+
     products.forEach(product => {
         // Format the dates
         const availableFrom = new Date(product.availablefrom).toLocaleDateString();
         const availableTill = new Date(product.availabletill).toLocaleDateString();
-
+        const whend = new Date(product.whendate).toLocaleDateString();
+    
         // Create a new product element
         const productEl = document.createElement("div");
         productEl.className = "product";
-
+    
         // Display product information with formatted dates and add input for booking
         productEl.innerHTML = `
             <h2>${product.producttype}</h2>
@@ -54,42 +59,27 @@ document.addEventListener("DOMContentLoaded", async () => {
             <p><strong>Price:</strong> $${product.askprice}</p>
             <p><strong>Available From:</strong> ${availableFrom}</p>
             <p><strong>Available Till:</strong> ${availableTill}</p>
-            <label for="hours-${product.id}">Number of Hours:</label>
-            <input type="number" id="hours-${product.id}" class="hours-input" min="1" value="1">
-            <button class="book-btn" data-product-id="${product.id}">Book Product</button>
+            <p><strong>From When:</strong> ${whend}</p>
+            <p><strong>Pincode:</strong> ${product.pincode}</p>
+            <p><strong>Number of hours:</strong> ${product.numberofhours}</p>
+            <img src="${product.imagelink}" alt="Product Image">
+            <h5>${product.status}</h5>
         `;
-
+    
+        // If the product status is "Accepted", add additional information
+        if (product.status === "Accepted") {
+            const additionalInfo = document.createElement("div");
+            additionalInfo.innerHTML = `
+                <p><strong>This product is From:</strong> ${product.firstname}</p>
+                <p><strong>And his phone number:</strong> ${product.phonenumber}</p>
+            `;
+            productEl.appendChild(additionalInfo);
+        }
+    
+        // Append the product element to the container
         productDiv.appendChild(productEl);
     });
+    
 
     // Add event listener to all "Book Product" buttons
-    document.querySelectorAll(".book-btn").forEach(button => {
-        button.addEventListener("click", async (e) => {
-            const productId = e.target.getAttribute("data-product-id");
-            const hoursInput = document.getElementById(`hours-${productId}`);
-            const numberOfHours = parseInt(hoursInput.value, 10);
-
-            if (isNaN(numberOfHours) || numberOfHours <= 0) {
-                alert("Please enter a valid number of hours.");
-                return;
-            }
-
-            const bookingData = {
-                productId: productId,
-                numberOfHours: numberOfHours,
-                status: "Pending",
-                bookerSign: false,
-                lenderSign: false,
-                whenDate: new Date().toISOString()
-            };
-
-            const response = await apiRequest("/bookings", "POST", bookingData, token);
-
-            if (response.id) {
-                alert("Booking successful!");
-            } else {
-                alert(response.error || "Booking failed.");
-            }
-        });
-    });
 });

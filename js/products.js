@@ -84,10 +84,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             const availableFrom = new Date(product.availablefrom);
             const availableTill = new Date(product.availabletill);
 
+      
+
             // Validate if the selected whenDate is within the valid range
             if (whenDate < availableFrom || whenDate > availableTill) {
-                alert(`Please select a date between ${availableFrom.toLocaleDateString()} and ${availableTill.toLocaleDateString()}.`);
-                return;
+                if(availableFrom === availableTill){
+                
+                }
+                else {
+                    alert(`Please select a date between ${availableFrom.toLocaleDateString()} and ${availableTill.toLocaleDateString()}.`);
+                    return;
+                }
+             
             }
 
             if (isNaN(numberOfHours) || numberOfHours <= 0) {

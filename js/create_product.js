@@ -41,6 +41,21 @@ document.getElementById("productForm").addEventListener("submit", async (e) => {
     formData.append("taluka", taluka);
 
     const token = localStorage.getItem("token");
+
+    const availableFromDate = new Date(availableFrom);
+    const availableTillDate = new Date(availableTill);
+
+
+
+    availableFromDate.setHours(0, 0, 0, 0);
+    availableTillDate.setHours(0, 0, 0, 0);
+    
+    // Validate the date range
+    if (availableFromDate >= availableTillDate) {
+        alert(`Cannot have the booking range be like this. The available from: ${availableFromDate.toDateString()} should be earlier than available till: ${availableTillDate.toDateString()}`);
+        return;
+    }
+
     const result = await apiRequest("/products", "POST", formData, token);
 
     if (result.id) {
