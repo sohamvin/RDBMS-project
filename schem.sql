@@ -1,20 +1,22 @@
-
+-- Create userprofile table
 CREATE TABLE UserProfile (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    username VARCHAR(255) UNIQUE NOT NULL,
-    pincode VARCHAR(255) NOT NULL,
-    firstName VARCHAR(255) NOT NULL,
-    lastName VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
     imageprofile VARCHAR(300) DEFAULT NULL,
+    phonenumber VARCHAR(20) DEFAULT NULL,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    pincode VARCHAR(10) NOT NULL,
+    firstname VARCHAR(255) NOT NULL,
+    lastname VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
 );
 
+-- Create product table
 CREATE TABLE Product (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     fromUserId UUID NOT NULL,
     availableFrom TIMESTAMP NOT NULL,
     availableTill TIMESTAMP NOT NULL,
-    askPrice FLOAT NOT NULL,
+    askPrice FLOAT8 NOT NULL,
     imageLink TEXT NOT NULL,
     description TEXT NOT NULL,
     pincode VARCHAR(10) NOT NULL,
@@ -24,14 +26,14 @@ CREATE TABLE Product (
     FOREIGN KEY (fromUserId) REFERENCES UserProfile(id)
 );
 
+-- Create booking table
 CREATE TABLE Booking (
-    id VARCHAR(300) PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    bookingDate TIMESTAMP NOT NULL,
     productId UUID NOT NULL,
     askerId UUID NOT NULL,
-    numberOfHours INT NOT NULL,
+    numberOfHours INT4 NOT NULL,
     status VARCHAR(20) NOT NULL,
-    bookerSign BOOLEAN NOT NULL,
-    lenderSign BOOLEAN NOT NULL,
     whenDate TIMESTAMP NOT NULL,
     FOREIGN KEY (productId) REFERENCES Product(id),
     FOREIGN KEY (askerId) REFERENCES UserProfile(id)

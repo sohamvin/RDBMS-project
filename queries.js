@@ -31,10 +31,29 @@ const INSERT_NEW_BOOKING = `
     RETURNING *`;
 
 const GET_BOOKINGS_BY_USER = `
-    SELECT p.id, p.availablefrom, p.availabletill, p.askprice, p.producttype, b.numberofhours, b.whendate, p.imagelink, p.pincode, p.fromuserid FROM Product p
+    SELECT 
+        p.id, 
+        p.availablefrom, 
+        p.description, 
+        b.status, 
+        p.availabletill, 
+        p.askprice, 
+        p.producttype, 
+        b.numberofhours, 
+        b.whendate, 
+        p.imagelink, 
+        p.pincode, 
+        p.fromuserid, 
+        u.firstname, 
+        u.lastname, 
+        u.phonenumber 
+    FROM Product p
     JOIN Booking b ON p.id = b.productid 
+    JOIN userprofile u ON p.fromuserid = u.id
     WHERE b.askerId = $1
 `;
+
+
 
 const GET_PRODUCT_OWNER = `
     SELECT fromUserId FROM Product 
